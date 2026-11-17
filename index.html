@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eef1f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e131b" media="(prefers-color-scheme: dark)">
+<title>Glyphora-Software-Development – Custom admin systems for inventory, orders and HR</title>
+<meta name="description" content="We build custom back-office systems: inventory, order management, HR and lightweight ERP. From requirements to deployment.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>📒</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef1f4; --surface:#fff; --ink:#101828; --muted:#566074; --line:#d3d9e1;
+  --accent:#2447f5; --accent-ink:#fff; --warn:#b45309; --warn-bg:#fdeccb;
+  --ok:#0f6b4b; --ok-bg:#d6f1e5;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e131b; --surface:#161d28; --ink:#eef2f7; --muted:#9aa5b8; --line:#2a3342;
+    --accent:#7d95ff; --accent-ink:#0e131b; --warn:#f5b85c; --warn-bg:#3a2b10;
+    --ok:#6fddb0; --ok-bg:#123327;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(76px + env(safe-area-inset-top,0px));-webkit-text-size-adjust:100%}
+body{overflow-wrap:break-word;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;letter-spacing:-.02em}
+h1{font-size:clamp(2.4rem,6vw,4.2rem);font-weight:700}
+h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;margin-bottom:.5rem}
+h3{font-size:1.25rem;font-weight:700}
+p{margin:0 0 1em;max-width:62ch}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-left)) 0 max(20px,env(safe-area-inset-right))}
+section{padding:84px 0}
+.lede{color:var(--muted);font-size:1.1rem}
+
+/* nav */
+header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:var(--display);font-weight:700;font-size:1.25rem;text-decoration:none}
+nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-size:.95rem}
+nav ul a{text-decoration:none;color:var(--muted)}
+nav ul a:hover{color:var(--ink)}
+.btn{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:12px 22px;border-radius:6px;font-weight:600;text-decoration:none;border:0;cursor:pointer;font:600 1rem var(--body)}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+header{padding-top:env(safe-area-inset-top,0px)}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.menu-btn{display:none;width:44px;height:44px;place-items:center;background:transparent;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);cursor:pointer}
+@media(max-width:760px){
+  nav ul{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:var(--bg);border-bottom:1px solid var(--line);padding:4px max(20px,env(safe-area-inset-left)) 12px}
+  nav ul.open{display:flex}
+  nav ul a{display:block;padding:15px 0;font-size:1.05rem;border-bottom:1px solid var(--line);color:var(--ink)}
+  nav ul li:last-child a{border-bottom:0}
+  .menu-btn{display:grid}
+  .nav-actions .btn{padding:10px 14px;font-size:.92rem}
+}
+
+/* hero */
+.hero{padding:64px 0 84px}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:40px}
+@media(min-width:980px){.hero-grid{grid-template-columns:1fr 1.15fr;align-items:center;gap:56px}}
+.hero p{margin-top:20px}
+.hero .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+
+/* live demo */
+.demo{background:var(--surface);border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;box-shadow:6px 6px 0 var(--ink)}
+.demo-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.demo-bar strong{color:var(--ink);font-family:var(--display);font-size:1rem}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:.82rem}
+td.num{font-variant-numeric:tabular-nums}
+.chip{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:600}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.low{background:var(--warn-bg);color:var(--warn)}
+.sq{width:28px;height:28px;border:1px solid var(--line);background:var(--bg);border-radius:5px;cursor:pointer;color:var(--ink);font:600 1rem/1 var(--body)}
+.sq:hover{border-color:var(--ink)}
+.demo form{display:flex;gap:8px;padding:12px 14px;flex-wrap:wrap;background:var(--bg)}
+.demo input{font:inherit;font-size:.9rem;padding:7px 10px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink);min-width:0}
+.demo input[name=name]{flex:2 1 120px}.demo input[name=stock]{flex:1 1 60px;max-width:90px}
+.demo form button{padding:7px 14px;font-size:.9rem}
+.hint{font-size:.82rem;color:var(--muted);margin:12px 0 0}
+
+/* services: ruled rows like a ledger */
+.rows{margin-top:36px;border-top:1.5px solid var(--ink)}
+.row{display:grid;grid-template-columns:1fr;gap:6px 32px;padding:26px 0;border-bottom:1px solid var(--line)}
+@media(min-width:820px){.row{grid-template-columns:1.1fr 1.6fr .6fr}}
+.row p{margin:0;color:var(--muted);font-size:.98rem}
+.row .time{font-weight:600;font-size:.95rem}
+
+/* work */
+.work{display:grid;gap:20px;margin-top:36px}
+@media(min-width:820px){.work{grid-template-columns:repeat(3,1fr)}}
+.case{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.case .shot{height:120px;border-radius:5px;background:repeating-linear-gradient(0deg,var(--line) 0 1px,transparent 1px 24px),var(--bg);display:flex;align-items:end;padding:10px;font-size:.8rem;color:var(--muted)}
+.case p{font-size:.95rem;color:var(--muted);margin:0}
+.case .stack{font-size:.85rem;color:var(--ink);font-weight:500;margin-top:auto}
+
+/* process */
+.steps{list-style:none;counter-reset:s;margin:36px 0 0;padding:0;display:grid;gap:0;border-left:2px solid var(--ink)}
+.steps li{counter-increment:s;position:relative;padding:0 0 26px 30px}
+.steps li::before{content:counter(s);position:absolute;left:-15px;top:0;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);font:700 .85rem/28px var(--display);text-align:center}
+.steps h3{font-size:1.1rem;margin-bottom:2px}
+.steps p{margin:0;color:var(--muted);font-size:.97rem}
+
+/* pricing */
+.plans{display:grid;gap:20px;margin-top:36px}
+@media(min-width:820px){.plans{grid-template-columns:repeat(3,1fr);align-items:stretch}}
+.plan{border:1px solid var(--line);background:var(--surface);padding:26px;border-radius:8px;display:flex;flex-direction:column;gap:12px}
+.plan.feat{border:2px solid var(--accent)}
+.price{font:700 1.9rem var(--display);letter-spacing:-.02em}
+.plan ul{margin:0;padding-left:1.1em;color:var(--muted);font-size:.96rem}
+.plan li{margin-bottom:6px}
+.note{font-size:.9rem;color:var(--muted);margin-top:20px}
+
+/* about + contact */
+.split{display:grid;gap:40px}
+@media(min-width:900px){.split{grid-template-columns:1fr 1fr;gap:64px}}
+.facts{list-style:none;padding:0;margin:0;border-top:1.5px solid var(--ink)}
+.facts li{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);font-size:.97rem}
+.facts span:first-child{color:var(--muted)}
+.facts span:last-child{text-align:right;font-weight:500}
+.contact form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-size:.92rem;font-weight:500}
+.contact input,.contact select,.contact textarea{font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);width:100%}
+.contact textarea{min-height:120px;resize:vertical}
+.two{display:grid;gap:14px}
+@media(min-width:560px){.two{grid-template-columns:1fr 1fr}}
+#status{font-size:.92rem;color:var(--muted);min-height:1.4em}
+footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+@media(max-width:760px){
+  body{font-size:16px}
+  section{padding:56px 0}
+  .hero{padding:36px 0 56px}
+  .hero-grid{gap:32px}
+  .hero .actions .btn{flex:1 1 100%;text-align:center;padding:14px 22px}
+  .lede{font-size:1.02rem}
+  .rows,.work,.plans,.steps{margin-top:24px}
+  .row{padding:20px 0}
+  .case .shot{height:88px}
+  .facts li{flex-direction:column;gap:2px}
+  .facts span:last-child{text-align:left}
+  .contact input,.contact select,.contact textarea{font-size:16px;min-height:48px}
+  .contact textarea{min-height:140px}
+  .contact form .btn{width:100%;padding:15px}
+  footer{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+  footer .wrap{flex-direction:column}
+  .demo{box-shadow:4px 4px 0 var(--ink)}
+}
+/* demo table becomes stacked rows on phones */
+@media(max-width:600px){
+  .demo thead{display:none}
+  .demo table,.demo tbody{display:block}
+  .demo tr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"name stat" "stock ctrl";gap:8px 12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .demo td{display:block;padding:0;border:0;white-space:normal}
+  .demo td.sku{display:none}
+  .demo td.name{grid-area:name;font-weight:500}
+  .demo td.stat{grid-area:stat;justify-self:end}
+  .demo td.num{grid-area:stock}
+  .demo td.num::before{content:"In stock: ";color:var(--muted)}
+  .demo td.ctrl{grid-area:ctrl;justify-self:end}
+  .demo input[name=name]{flex:1 1 100%}
+  .demo input[name=stock]{flex:1 1 80px;max-width:none}
+  .demo form button{flex:1 1 120px}
+}
+/* bigger touch targets on touch screens */
+@media(pointer:coarse){
+  .sq{width:40px;height:40px;font-size:1.15rem}
+  .demo input{font-size:16px;min-height:44px}
+  .demo form button{min-height:44px}
+  .btn{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="logo" href="#top">Glyphora-Software-Development</a>
+      <ul id="menu">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#process">Process</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="btn" href="#contact">Get a quote</a>
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Your spreadsheets, turned into a real system.</h1>
+      <p class="lede">We build custom inventory, order, HR and lightweight ERP tools for small and mid-sized businesses. Clear scope, fixed milestones, code you own.</p>
+      <div class="actions">
+        <a class="btn" href="#contact">Describe your project</a>
+        <a class="btn ghost" href="#services">See what we build</a>
+      </div>
+    </div>
+    <div>
+      <div class="demo" aria-label="Interactive inventory demo">
+        <div class="demo-bar"><strong>Inventory</strong><span id="count"></span></div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>SKU</th><th>Item</th><th>In stock</th><th>Status</th><th></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <form id="add" autocomplete="off">
+          <input name="name" placeholder="New item name" aria-label="Item name" required>
+          <input name="stock" type="number" min="0" placeholder="Qty" aria-label="Quantity" required>
+          <button class="btn" type="submit">Add item</button>
+        </form>
+      </div>
+      <p class="hint">This is a live demo. Add items, adjust stock, delete rows. Items under their reorder level flag themselves.</p>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <h2>What we build</h2>
+    <p class="lede">Back-office systems that replace spreadsheets, chat threads and paper forms.</p>
+    <div class="rows">
+      <div class="row"><h3>Inventory management</h3><p>Items, locations, stock in and out, low-stock alerts, stocktake, CSV import and export.</p><span class="time">3–6 weeks</span></div>
+      <div class="row"><h3>Order management</h3><p>Customers, quotes, orders, fulfilment status, invoices, payment tracking and printable documents.</p><span class="time">4–8 weeks</span></div>
+      <div class="row"><h3>HR &amp; people ops</h3><p>Employee records, leave requests, approvals, attendance, role-based access and reports.</p><span class="time">4–8 weeks</span></div>
+      <div class="row"><h3>Purchasing, sales &amp; stock (light ERP)</h3><p>Suppliers, purchase orders, sales, and stock tied together in one place with dashboards.</p><span class="time">8–14 weeks</span></div>
+      <div class="row"><h3>Anything else with forms and tables</h3><p>Asset tracking, client databases, approval workflows, internal request portals.</p><span class="time">Scoped per project</span></div>
+    </div>
+    <p class="note">Every project ships with the system, deployment, admin documentation and a hands-on handover session.</p>
+  </div>
+</section>
+
+<section id="work" style="background:var(--surface)">
+  <div class="wrap">
+    <h2>Selected work</h2>
+    <p class="lede">Replace these placeholders with your own projects and screenshots.</p>
+    <div class="work">
+      <article class="case"><div class="shot">Screenshot placeholder</div><h3>Warehouse stock tracker</h3><p>Replaced a shared spreadsheet for a distributor with 2,000+ SKUs. Stocktakes dropped from two days to half a day.</p><span class="stack">Node.js · PostgreSQL · Vue</span></article>
+      <article class="case"><div class="shot">Screenshot placeholder</div><h3>Order and invoicing portal</h3><p>Quote-to-cash flow for a trading company, with approval steps and PDF invoices.</p><span class="stack">Python · Django · MySQL</span></article>
+      <article class="case"><div class="shot">Screenshot placeholder</div><h3>Leave and attendance system</h3><p>Self-service leave requests and manager approvals for a 120-person team.</p><span class="stack">PHP · Laravel · MySQL</span></article>
+    </div>
+  </div>
+</section>
+
+<section id="process">
+  <div class="wrap">
+    <h2>How a project runs</h2>
+    <p class="lede">Seven steps, each with something you can review.</p>
+    <ol class="steps">
+      <li><h3>Requirements call</h3><p>We map your workflow, users and must-have features.</p></li>
+      <li><h3>Proposal and quote</h3><p>A written scope, milestones, timeline and fixed price.</p></li>
+      <li><h3>Prototype</h3><p>Clickable screens for you to approve before we write backend code.</p></li>
+      <li><h3>Build in iterations</h3><p>Working builds every one to two weeks, so feedback lands early.</p></li>
+      <li><h3>Testing and acceptance</h3><p>We test against the agreed scope, then you sign off.</p></li>
+      <li><h3>Deployment and training</h3><p>Go-live on your server or cloud, plus a walkthrough for your team.</p></li>
+      <li><h3>Support</h3><p>A bug-fix warranty period and optional maintenance after launch.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="pricing" style="background:var(--surface)">
+  <div class="wrap">
+    <h2>Pricing</h2>
+    <p class="lede">Indicative ranges. Your fixed quote comes after the requirements call.</p>
+    <div class="plans">
+      <div class="plan"><h3>Starter</h3><div class="price">$1,500–$3,000</div><p style="margin:0;color:var(--muted)">One module, one user role.</p><ul><li>Single module (e.g. inventory)</li><li>Login and basic permissions</li><li>CSV export</li><li>Deployment and handover</li></ul></div>
+      <div class="plan feat"><h3>Standard</h3><div class="price">$4,000–$9,000</div><p style="margin:0;color:var(--muted)">Two to three connected modules.</p><ul><li>Inventory, orders or HR combined</li><li>Role-based access</li><li>Dashboards and reports</li><li>Documentation and training</li></ul></div>
+      <div class="plan"><h3>Business</h3><div class="price">Custom</div><p style="margin:0;color:var(--muted)">Multi-module systems with integrations.</p><ul><li>Light ERP across departments</li><li>Approval workflows</li><li>Integrations with your tools</li><li>Ongoing maintenance plan</li></ul></div>
+    </div>
+    <p class="note">Prices are placeholders. Edit them in index.html to match your market.</p>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap split">
+    <div>
+      <h2>A small team that stays on your project</h2>
+      <p>We are developers who like back-office software: the tables, forms and approval steps that keep a business running. You talk to the people building your system, not an account manager.</p>
+      <p>We write plain, maintainable code, and you receive the full source when the project is done.</p>
+    </div>
+    <ul class="facts">
+      <li><span>Front end</span><span>HTML, CSS, JavaScript, Vue / React</span></li>
+      <li><span>Back end</span><span>Node.js, Python, PHP</span></li>
+      <li><span>Databases</span><span>PostgreSQL, MySQL</span></li>
+      <li><span>Deployment</span><span>Docker, Linux, major clouds</span></li>
+      <li><span>Languages</span><span>English, Chinese</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="contact" class="contact" style="background:var(--surface)">
+  <div class="wrap split">
+    <div>
+      <h2>Tell us what you need</h2>
+      <p class="lede">Share a few details and we will reply within one business day with questions or a rough estimate.</p>
+      <p>Prefer email? <a id="mailLink" href="mailto:hello@example.com">hello@example.com</a></p>
+    </div>
+    <form id="inquiry">
+      <div class="two">
+        <label>Name<input name="name" required autocomplete="name"></label>
+        <label>Company<input name="company" autocomplete="organization"></label>
+      </div>
+      <div class="two">
+        <label>Email<input name="email" type="email" required autocomplete="email"></label>
+        <label>Budget
+          <select name="budget"><option>Not sure yet</option><option>Under $3,000</option><option>$3,000–$9,000</option><option>$9,000+</option></select>
+        </label>
+      </div>
+      <label>System type
+        <select name="type"><option>Inventory</option><option>Orders</option><option>HR</option><option>Light ERP</option><option>Something else</option></select>
+      </label>
+      <label>What should it do?<textarea name="message" required></textarea></label>
+      <button class="btn" type="submit">Open in my email app</button>
+      <div id="status" role="status"></div>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap"><span>© <span id="yr"></span> Glyphora-Software-Development</span><span>Custom admin systems</span></div>
+</footer>
+
+<script>
+// ===== CONFIG: change these =====
+const CONTACT_EMAIL = "hello@example.com";
+// ================================
+
+document.getElementById("yr").textContent = new Date().getFullYear();
+const mail = document.getElementById("mailLink");
+mail.href = "mailto:" + CONTACT_EMAIL; mail.textContent = CONTACT_EMAIL;
+
+// ----- Mobile menu -----
+const menu = document.getElementById("menu"), menuBtn = document.getElementById("menuBtn");
+function setMenu(open){ menu.classList.toggle("open", open); menuBtn.setAttribute("aria-expanded", open); }
+menuBtn.addEventListener("click", () => setMenu(!menu.classList.contains("open")));
+menu.addEventListener("click", e => { if(e.target.closest("a")) setMenu(false); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") setMenu(false); });
+
+// ----- Inventory demo (in memory only) -----
+let items = [
+  {sku:"A-101", name:"Packing tape", stock:42, reorder:20},
+  {sku:"A-102", name:"Shipping labels", stock:8, reorder:15},
+  {sku:"B-210", name:"Bubble wrap roll", stock:19, reorder:10},
+  {sku:"B-305", name:"Small boxes", stock:5, reorder:25}
+];
+let n = 400;
+const tbody = document.getElementById("rows");
+const count = document.getElementById("count");
+
+function render(){
+  tbody.innerHTML = "";
+  items.forEach((it, i) => {
+    const low = it.stock <= it.reorder;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="sku">${esc(it.sku)}</td><td class="name">${esc(it.name)}</td>
+      <td class="num">${it.stock}</td>
+      <td class="stat"><span class="chip ${low ? "low" : "ok"}">${low ? "Reorder" : "OK"}</span></td>
+      <td class="ctrl"><button class="sq" data-a="dec" data-i="${i}" aria-label="Remove one ${esc(it.name)}">−</button>
+          <button class="sq" data-a="inc" data-i="${i}" aria-label="Add one ${esc(it.name)}">+</button>
+          <button class="sq" data-a="del" data-i="${i}" aria-label="Delete ${esc(it.name)}">×</button></td>`;
+    tbody.appendChild(tr);
+  });
+  const lowN = items.filter(x => x.stock <= x.reorder).length;
+  count.textContent = items.length + " items, " + lowN + " to reorder";
+}
+function esc(s){return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+tbody.addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  const i = +b.dataset.i;
+  if(b.dataset.a === "inc") items[i].stock++;
+  if(b.dataset.a === "dec") items[i].stock = Math.max(0, items[i].stock - 1);
+  if(b.dataset.a === "del") items.splice(i, 1);
+  render();
+});
+document.getElementById("add").addEventListener("submit", e => {
+  e.preventDefault();
+  const f = e.target, name = f.name.value.trim(), stock = parseInt(f.stock.value, 10);
+  if(!name || isNaN(stock)) return;
+  items.push({sku:"N-" + (++n), name, stock, reorder:10});
+  f.reset(); render();
+});
+render();
+
+// ----- Contact form: no backend, opens the visitor's email app -----
+document.getElementById("inquiry").addEventListener("submit", e => {
+  e.preventDefault();
+  const d = new FormData(e.target), g = k => (d.get(k) || "").toString().trim();
+  const subject = "Project inquiry: " + g("type") + (g("company") ? " (" + g("company") + ")" : "");
+  const body = ["Name: " + g("name"), "Company: " + g("company"), "Email: " + g("email"),
+    "System type: " + g("type"), "Budget: " + g("budget"), "", g("message")].join("\n");
+  window.location.href = "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  document.getElementById("status").textContent = "If nothing opened, email " + CONTACT_EMAIL + " directly.";
+});
+</script>
+</body>
+</html>
